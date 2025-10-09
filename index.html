@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suma y Resta Móvil</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial Rounded MT Bold', 'Segoe UI', sans-serif;
+        }
+        
+        :root {
+            --bg-primary: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --bg-container: rgba(255, 255, 255, 0.1);
+            --bg-game: rgba(255, 255, 255, 0.15);
+            --bg-settings: rgba(255, 255, 255, 0.15);
+            --bg-stats: rgba(255, 255, 255, 0.1);
+            --bg-instructions: rgba(255, 255, 255, 0.1);
+            --text-color: white;
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --button-bg: #FFD166;
+            --button-shadow: #e6b845;
+            --button-text: #333;
+            --correct-color: #06D6A0;
+            --incorrect-color: #EF476F;
+            --true-btn-bg: #06D6A0;
+            --true-btn-shadow: #04b483;
+            --false-btn-bg: #EF476F;
+            --false-btn-shadow: #d43a5e;
+            --option-btn-bg: rgba(255, 255, 255, 0.2);
+            --option-btn-border: rgba(255, 255, 255, 0.3);
+        }
+        
+        .dark-mode {
+            --bg-primary: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            --bg-container: rgba(0, 0, 0, 0.7);
+            --bg-game: rgba(0, 0, 0, 0.6);
+            --bg-settings: rgba(0, 0, 0, 0.6);
+            --bg-stats: rgba(0, 0, 0, 0.5);
+            --bg-instructions: rgba(0, 0, 0, 0.5);
+            --text-color: #e0e0e0;
+            --input-bg: rgba(255, 255, 255, 0.1);
+            --input-text: white;
+            --button-bg: #444;
+            --button-shadow: #333;
+            --button-text: #e0e0e0;
+            --correct-color: #0f9;
+            --incorrect-color: #f55;
+            --true-btn-bg: #0a7;
+            --true-btn-shadow: #065;
+            --false-btn-bg: #a33;
+            --false-btn-shadow: #722;
+            --option-btn-bg: rgba(255, 255, 255, 0.1);
+            --option-btn-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 100%;
+            width: 100%;
+            background-color: var(--bg-container);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        /* Estilos para móvil (por defecto) */
+        .mobile-ui {
+            /* Ya están aplicados los estilos móviles por defecto */
+        }
+        
+        /* Estilos para escritorio */
+        .desktop-ui .container {
+            max-width: 900px;
+            padding: 30px;
+        }
+        
+        .desktop-ui .header {
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        
+        .desktop-ui .settings {
+            flex-direction: row;
+            justify-content: space-around;
+        }
+        
+        .desktop-ui .stats {
+            flex-direction: row;
+        }
+        
+        .desktop-ui .stats-row {
+            flex-direction: row;
+            width: 100%;
+        }
+        
+        .desktop-ui .input-container {
+            flex-direction: row;
+            justify-content: center;
+        }
+        
+        .desktop-ui .true-false-container {
+            justify-content: center;
+        }
+        
+        .desktop-ui .multiple-choice-container {
+            grid-template-columns: 1fr 1fr;
+            max-width: 400px;
+        }
+        
+        .desktop-ui .operation {
+            font-size: 4rem;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .theme-toggle, .layout-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover, .layout-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .description {
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.4;
+            text-align: center;
+        }
+        
+        .settings {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+            background-color: var(--bg-settings);
+            border-radius: 15px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .setting-group h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .option-btn {
+            background-color: var(--option-btn-bg);
+            color: var(--text-color);
+            border: 2px solid var(--option-btn-border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .option-btn.active {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border-color: var(--button-bg);
+        }
+        
+        .game-container {
+            background-color: var(--bg-game);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .operation {
+            font-size: 2.8rem;
+            margin: 15px 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 100%;
+        }
+        
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        input {
+            width: 120px;
+            height: 60px;
+            font-size: 2rem;
+            text-align: center;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        button {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 0 var(--button-shadow);
+            width: 100%;
+            max-width: 200px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 var(--button-shadow);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--button-shadow);
+        }
+        
+        .feedback {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 40px;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .correct {
+            color: var(--correct-color);
+        }
+        
+        .incorrect {
+            color: var(--incorrect-color);
+        }
+        
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: var(--bg-stats);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--bg-instructions);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        
+        .true-false-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            width: 100%;
+        }
+        
+        .true-false-btn {
+            width: 100px;
+            height: 60px;
+            font-size: 2.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            max-width: 120px;
+        }
+        
+        #true-btn {
+            background-color: var(--true-btn-bg);
+            color: white;
+            box-shadow: 0 4px 0 var(--true-btn-shadow);
+        }
+        
+        #true-btn:hover {
+            box-shadow: 0 6px 0 var(--true-btn-shadow);
+        }
+        
+        #true-btn:active {
+            box-shadow: 0 2px 0 var(--true-btn-shadow);
+        }
+        
+        #false-btn {
+            background-color: var(--false-btn-bg);
+            color: white;
+            box-shadow: 0 4px 0 var(--false-btn-shadow);
+        }
+        
+        #false-btn:hover {
+            box-shadow: 0 6px 0 var(--false-btn-shadow);
+        }
+        
+        #false-btn:active {
+            box-shadow: 0 2px 0 var(--false-btn-shadow);
+        }
+        
+        .multiple-choice-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+        
+        .choice-btn {
+            width: 100%;
+            height: 60px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mode-container {
+            display: none;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mode-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .timer-display {
+            font-size: 0.9rem;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+        
+        @media (min-width: 500px) {
+            .settings {
+                flex-direction: row;
+                justify-content: space-around;
+            }
+            
+            .stats {
+                flex-direction: row;
+            }
+            
+            .stats-row {
+                flex-direction: row;
+                width: 100%;
+            }
+            
+            .input-container {
+                flex-direction: row;
+            }
+            
+            .multiple-choice-container {
+                max-width: 350px;
+            }
+        }
+        
+        @media (max-width: 350px) {
+            .operation {
+                font-size: 2.2rem;
+            }
+            
+            .true-false-btn {
+                width: 80px;
+                height: 50px;
+                font-size: 1.8rem;
+            }
+            
+            .multiple-choice-container {
+                max-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body class="mobile-ui">
+    <div class="container">
+        <div class="header">
+            <h1>Suma y Resta</h1>
+            <div class="header-controls">
+                <button class="layout-toggle" id="layout-toggle">💻</button>
+                <button class="theme-toggle" id="theme-toggle">🌙</button>
+            </div>
+        </div>
+        
+        <p class="description">Practica sumas y restas con números cuya suma es menor a 28</p>
+        
+        <div class="settings">
+            <div class="setting-group">
+                <h3>Operación</h3>
+                <div class="options">
+                    <div class="option-btn active" data-type="suma">Suma</div>
+                    <div class="option-btn" data-type="resta">Resta</div>
+                    <div class="option-btn" data-type="ambas">Ambas</div>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h3>Modo</h3>
+                <div class="options">
+                    <div class="option-btn active" data-mode="escritura">Escribir</div>
+                    <div class="option-btn" data-mode="verdadero-falso">✓ / ✗</div>
+                    <div class="option-btn" data-mode="seleccion">Selección</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <div class="operation" id="operation">5 + 3</div>
+            
+            <!-- Modo Escritura -->
+            <div class="mode-container active" id="escritura-mode">
+                <div class="input-container">
+                    <input type="number" id="answer" placeholder="?" min="0" max="27">
+                    <button id="submit">Comprobar</button>
+                </div>
+            </div>
+            
+            <!-- Modo Verdadero/Falso -->
+            <div class="mode-container" id="verdadero-falso-mode">
+                <div class="true-false-container">
+                    <button class="true-false-btn" id="true-btn">✓</button>
+                    <button class="true-false-btn" id="false-btn">✗</button>
+                </div>
+            </div>
+            
+            <!-- Modo Selección Múltiple -->
+            <div class="mode-container" id="seleccion-mode">
+                <div class="multiple-choice-container" id="choices-container">
+                    <!-- Las opciones se generarán dinámicamente -->
+                </div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="stats">
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-value" id="correct">0</div>
+                        <div class="stat-label">Correctas</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="incorrect">0</div>
+                        <div class="stat-label">Incorrectas</div>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-value" id="min-time">0.0s</div>
+                        <div class="stat-label">Mejor tiempo</div>
+                        <div class="timer-display" id="current-time">Actual: 0.0s</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>Instrucciones:</h3>
+            <p>1. Selecciona el tipo de operación que deseas practicar.</p>
+            <p>2. Elige el modo de respuesta.</p>
+            <p>3. Resuelve la operación matemática.</p>
+            <p>4. ¡Intenta conseguir tu mejor tiempo!</p>
+            <p>5. Usa el botón 🌙 para activar el modo oscuro y ahorrar energía.</p>
+            <p>6. Usa el botón 💻 para cambiar entre interfaz móvil y de escritorio.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del DOM
+            const operationElement = document.getElementById('operation');
+            const answerInput = document.getElementById('answer');
+            const submitButton = document.getElementById('submit');
+            const feedbackElement = document.getElementById('feedback');
+            const correctElement = document.getElementById('correct');
+            const incorrectElement = document.getElementById('incorrect');
+            const minTimeElement = document.getElementById('min-time');
+            const currentTimeElement = document.getElementById('current-time');
+            const trueButton = document.getElementById('true-btn');
+            const falseButton = document.getElementById('false-btn');
+            const choicesContainer = document.getElementById('choices-container');
+            const themeToggle = document.getElementById('theme-toggle');
+            const layoutToggle = document.getElementById('layout-toggle');
+            
+            // Botones de configuración
+            const operationButtons = document.querySelectorAll('[data-type]');
+            const modeButtons = document.querySelectorAll('[data-mode]');
+            const modeContainers = document.querySelectorAll('.mode-container');
+            
+            // Variables del juego
+            let correctAnswers = 0;
+            let incorrectAnswers = 0;
+            let currentOperation = {};
+            let currentMode = 'escritura';
+            let currentType = 'suma';
+            let isTrueFalseCorrect = true;
+            
+            // Variables del temporizador
+            let startTime = 0;
+            let currentTime = 0;
+            let minTime = 9999; // Valor inicial alto
+            let timerInterval;
+            
+            // Verificar preferencia de modo oscuro
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('theme');
+            const savedLayout = localStorage.getItem('layout');
+            
+            // Aplicar tema guardado o preferencia del sistema
+            if (savedTheme === 'dark' || (!savedTheme && prefersDarkMode)) {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            }
+            
+            // Aplicar diseño guardado
+            if (savedLayout === 'desktop') {
+                document.body.classList.remove('mobile-ui');
+                document.body.classList.add('desktop-ui');
+                layoutToggle.textContent = '📱';
+            }
+            
+            // Configurar interruptor de tema
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                if (document.body.classList.contains('dark-mode')) {
+                    themeToggle.textContent = '☀️';
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    themeToggle.textContent = '🌙';
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            
+            // Configurar interruptor de diseño
+            layoutToggle.addEventListener('click', function() {
+                document.body.classList.toggle('desktop-ui');
+                document.body.classList.toggle('mobile-ui');
+                if (document.body.classList.contains('desktop-ui')) {
+                    layoutToggle.textContent = '📱';
+                    localStorage.setItem('layout', 'desktop');
+                } else {
+                    layoutToggle.textContent = '💻';
+                    localStorage.setItem('layout', 'mobile');
+                }
+            });
+            
+            // Configurar botones de operación
+            operationButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    operationButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentType = this.getAttribute('data-type');
+                    generateOperation();
+                });
+            });
+            
+            // Configurar botones de modo
+            modeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    modeButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMode = this.getAttribute('data-mode');
+                    
+                    // Mostrar el contenedor del modo activo
+                    modeContainers.forEach(container => {
+                        container.classList.remove('active');
+                        if (container.id === `${currentMode}-mode`) {
+                            container.classList.add('active');
+                        }
+                    });
+                    
+                    generateOperation();
+                });
+            });
+            
+            // Iniciar temporizador
+            function startTimer() {
+                startTime = Date.now();
+                timerInterval = setInterval(updateTimer, 100);
+            }
+            
+            // Actualizar temporizador
+            function updateTimer() {
+                currentTime = (Date.now() - startTime) / 1000;
+                currentTimeElement.textContent = `Actual: ${currentTime.toFixed(1)}s`;
+            }
+            
+            // Detener temporizador
+            function stopTimer() {
+                clearInterval(timerInterval);
+                return currentTime;
+            }
+            
+            // Generar una nueva operación
+            function generateOperation() {
+                let operationTypes;
+                
+                if (currentType === 'suma') {
+                    operationTypes = ['+'];
+                } else if (currentType === 'resta') {
+                    operationTypes = ['-'];
+                } else {
+                    operationTypes = ['+', '-'];
+                }
+                
+                const type = operationTypes[Math.floor(Math.random() * operationTypes.length)];
+                
+                let num1, num2;
+                
+                if (type === '+') {
+                    // Para suma, ambos números deben sumar menos de 28
+                    num1 = Math.floor(Math.random() * 14) + 1;
+                    num2 = Math.floor(Math.random() * (27 - num1)) + 1;
+                } else {
+                    // Para resta, el primer número debe ser mayor que el segundo
+                    num1 = Math.floor(Math.random() * 27) + 1;
+                    num2 = Math.floor(Math.random() * num1) + 1;
+                }
+                
+                const result = type === '+' ? num1 + num2 : num1 - num2;
+                
+                // Para el modo verdadero/falso, decidir si mostrar la respuesta correcta o incorrecta
+                let displayedResult = result;
+                isTrueFalseCorrect = true;
+                
+                if (currentMode === 'verdadero-falso' && Math.random() > 0.5) {
+                    // Mostrar resultado incorrecto
+                    isTrueFalseCorrect = false;
+                    // Generar un resultado incorrecto (diferente al correcto)
+                    const offset = Math.floor(Math.random() * 5) + 1;
+                    displayedResult = Math.random() > 0.5 ? result + offset : result - offset;
+                    // Asegurarse de que el resultado no sea negativo
+                    if (displayedResult < 0) displayedResult = result + offset;
+                }
+                
+                currentOperation = {
+                    num1: num1,
+                    num2: num2,
+                    type: type,
+                    result: result,
+                    displayedResult: displayedResult
+                };
+                
+                // Mostrar la operación
+                if (currentMode === 'verdadero-falso') {
+                    operationElement.textContent = `${num1} ${type} ${num2} = ${displayedResult}`;
+                } else {
+                    operationElement.textContent = `${num1} ${type} ${num2}`;
+                }
+                
+                // Limpiar y preparar la interfaz según el modo
+                answerInput.value = '';
+                answerInput.focus();
+                feedbackElement.textContent = '';
+                feedbackElement.className = 'feedback';
+                
+                // Generar opciones para el modo selección múltiple
+                if (currentMode === 'seleccion') {
+                    generateMultipleChoiceOptions();
+                }
+                
+                // Iniciar temporizador
+                startTimer();
+            }
+            
+            // Generar opciones para selección múltiple
+            function generateMultipleChoiceOptions() {
+                choicesContainer.innerHTML = '';
+                const correctAnswer = currentOperation.result;
+                const options = [correctAnswer];
+                
+                // Generar 3 respuestas incorrectas
+                while (options.length < 4) {
+                    const offset = Math.floor(Math.random() * 5) + 1;
+                    let wrongAnswer;
+                    
+                    if (Math.random() > 0.5) {
+                        wrongAnswer = correctAnswer + offset;
+                    } else {
+                        wrongAnswer = correctAnswer - offset;
+                        if (wrongAnswer < 0) wrongAnswer = correctAnswer + offset;
+                    }
+                    
+                    // Asegurarse de que la respuesta incorrecta no se repita
+                    if (!options.includes(wrongAnswer)) {
+                        options.push(wrongAnswer);
+                    }
+                }
+                
+                // Mezclar las opciones
+                shuffleArray(options);
+                
+                // Crear botones para cada opción
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'choice-btn';
+                    button.textContent = option;
+                    button.addEventListener('click', function() {
+                        const responseTime = stopTimer();
+                        checkAnswer(parseInt(this.textContent), responseTime);
+                    });
+                    choicesContainer.appendChild(button);
+                });
+            }
+            
+            // Función para mezclar un array (algoritmo Fisher-Yates)
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+            
+            // Verificar la respuesta (modo escritura)
+            function checkWrittenAnswer() {
+                const userAnswer = parseInt(answerInput.value);
+                const responseTime = stopTimer();
+                
+                if (isNaN(userAnswer)) {
+                    feedbackElement.textContent = 'Ingresa un número válido';
+                    feedbackElement.className = 'feedback incorrect';
+                    startTimer(); // Reiniciar temporizador si la respuesta no es válida
+                    return;
+                }
+                
+                checkAnswer(userAnswer, responseTime);
+            }
+            
+            // Verificar la respuesta (modo verdadero/falso)
+            function checkTrueFalseAnswer(userChoice) {
+                const responseTime = stopTimer();
+                const isCorrect = (userChoice === isTrueFalseCorrect);
+                checkAnswer(isCorrect ? currentOperation.result : -1, responseTime, isCorrect);
+            }
+            
+            // Verificar la respuesta general
+            function checkAnswer(userAnswer, responseTime, isCorrect = null) {
+                if (isCorrect === null) {
+                    isCorrect = (userAnswer === currentOperation.result);
+                }
+                
+                if (isCorrect) {
+                    correctAnswers++;
+                    feedbackElement.textContent = '¡Correcto! 🎉';
+                    feedbackElement.className = 'feedback correct';
+                    
+                    // Actualizar tiempo mínimo si es necesario (solo para respuestas correctas)
+                    if (responseTime < minTime) {
+                        minTime = responseTime;
+                        minTimeElement.textContent = `${minTime.toFixed(1)}s`;
+                    }
+                } else {
+                    incorrectAnswers++;
+                    feedbackElement.textContent = `Incorrecto. La respuesta es ${currentOperation.result}`;
+                    feedbackElement.className = 'feedback incorrect';
+                }
+                
+                // Actualizar estadísticas
+                correctElement.textContent = correctAnswers;
+                incorrectElement.textContent = incorrectAnswers;
+                
+                // Generar nueva operación después de un breve retraso
+                setTimeout(generateOperation, 1500);
+            }
+            
+            // Event listeners
+            submitButton.addEventListener('click', checkWrittenAnswer);
+            
+            answerInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkWrittenAnswer();
+                }
+            });
+            
+            trueButton.addEventListener('click', function() {
+                const responseTime = stopTimer();
+                checkTrueFalseAnswer(true);
+            });
+            
+            falseButton.addEventListener('click', function() {
+                const responseTime = stopTimer();
+                checkTrueFalseAnswer(false);
+            });
+            
+            // Iniciar el juego
+            generateOperation();
+        });
+    </script>
+</body>
+</html>
