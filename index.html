@@ -20,7 +20,7 @@
             --bg-stats: rgba(255, 255, 255, 0.1);
             --bg-instructions: rgba(255, 255, 255, 0.1);
             --text-color: white;
-            --input-bg: rgba(143, 141, 239, 0.9);
+            --input-bg: rgba(255, 255, 255, 0.9);
             --button-bg: #FFD166;
             --button-shadow: #e6b845;
             --button-text: #333;
@@ -483,7 +483,7 @@
             </div>
         </div>
         
-        <p class="description">Practica sumas y restas con números cuya suma es menor a 28</p>
+        <p class="description">Practica sumas y restas con números del 1 al 9</p>
         
         <div class="settings">
             <div class="setting-group">
@@ -511,7 +511,7 @@
             <!-- Modo Escritura -->
             <div class="mode-container active" id="escritura-mode">
                 <div class="input-container">
-                    <input type="number" id="answer" placeholder="?" min="0" max="27">
+                    <input type="number" id="answer" placeholder="?" min="0" max="18">
                     <button id="submit">Comprobar</button>
                 </div>
             </div>
@@ -708,13 +708,13 @@
                 let num1, num2;
                 
                 if (type === '+') {
-                    // Para suma, ambos números deben sumar menos de 28
-                    num1 = Math.floor(Math.random() * 14) + 1;
-                    num2 = Math.floor(Math.random() * (27 - num1)) + 1;
+                    // Para suma, ambos números entre 1 y 9
+                    num1 = Math.floor(Math.random() * 9) + 1; // Entre 1 y 9
+                    num2 = Math.floor(Math.random() * 9) + 1; // Entre 1 y 9
                 } else {
-                    // Para resta, el primer número debe ser mayor que el segundo
-                    num1 = Math.floor(Math.random() * 27) + 1;
-                    num2 = Math.floor(Math.random() * num1) + 1;
+                    // Para resta, ambos números entre 1 y 9, y num1 >= num2
+                    num1 = Math.floor(Math.random() * 9) + 1; // Entre 1 y 9
+                    num2 = Math.floor(Math.random() * num1) + 1; // Entre 1 y num1
                 }
                 
                 const result = type === '+' ? num1 + num2 : num1 - num2;
@@ -727,10 +727,12 @@
                     // Mostrar resultado incorrecto
                     isTrueFalseCorrect = false;
                     // Generar un resultado incorrecto (diferente al correcto)
-                    const offset = Math.floor(Math.random() * 5) + 1;
+                    const offset = Math.floor(Math.random() * 3) + 1; // Entre 1 y 3
                     displayedResult = Math.random() > 0.5 ? result + offset : result - offset;
                     // Asegurarse de que el resultado no sea negativo
                     if (displayedResult < 0) displayedResult = result + offset;
+                    // Asegurarse de que el resultado no sea mayor a 18
+                    if (displayedResult > 18) displayedResult = result - offset;
                 }
                 
                 currentOperation = {
@@ -771,7 +773,7 @@
                 
                 // Generar 3 respuestas incorrectas
                 while (options.length < 4) {
-                    const offset = Math.floor(Math.random() * 5) + 1;
+                    const offset = Math.floor(Math.random() * 3) + 1; // Entre 1 y 3
                     let wrongAnswer;
                     
                     if (Math.random() > 0.5) {
@@ -888,4 +890,4 @@
         });
     </script>
 </body>
-</html>
+</html></html>
